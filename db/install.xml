@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/tutorship/db" VERSION="2010080300" COMMENT="XMLDB file for Moodle mod/tutorship"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="tutorship" COMMENT="Tutorship's instance table" NEXT="tutorship_timetables">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="name"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" ENUM="false" COMMENT="Name field for moodle instances" PREVIOUS="id" NEXT="course"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Course tutorship activity belongs to" PREVIOUS="name" NEXT="timemodified"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Instance creation or modification timestamp" PREVIOUS="course"/> 
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for tutorship table" NEXT="course_fk"/>
+        <KEY NAME="course_fk" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"  COMMENT="Foreign key to refer course table" PREVIOUS="primary"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="tutorship_timetables" COMMENT="Teacher's timetables" PREVIOUS="tutorship" NEXT="tutorship_reserves">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="teacherid"/>
+        <FIELD NAME="teacherid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Timetable belongs to teacher" PREVIOUS="id" NEXT="periodid"/>
+        <FIELD NAME="periodid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="fale" COMMENT="Timetable belongs to period" PREVIOUS="teacherid" NEXT="timeslotid"/>
+        <FIELD NAME="timeslotid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Timeslot belongs to timetable" PREVIOUS="periodid" NEXT="timemodified"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Timetable creation or modification timestamp" PREVIOUS="timeslotid"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for tutorship_timetables table" NEXT="teacherid_fk"/>
+        <KEY NAME="teacherid_fk" TYPE="foreign" FIELDS="teacherid" REFTABLE="user" REFFIELDS="id" COMMENT="Foreign key to refer user table" PREVIOUS="primary" NEXT="periodid_fk"/>
+        <KEY NAME="periodid_fk" TYPE="foreign" FIELDS="periodid" REFTABLE="tutorship_periods" REFFIELDS="id" COMMENT="Foreign key to refer tutorship_periods table" PREVIOUS="teacherid_fk" NEXT="timeslotid_fk"/>
+        <KEY NAME="timeslotid_fk" TYPE="foreign" FIELDS="timeslotid" REFTABLE="tutorship_timeslots" REFFIELDS="id" COMMENT="Foreign key to refer tutorship_timeslots table" PREVIOUS="periodid_fk"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="tutorship_reserves" COMMENT="Student's timeslots reservations" PREVIOUS="tutorship_timetables" NEXT="tutorship_timeslots">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="courseid"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Reserved in course" PREVIOUS="id" NEXT="studentid"/>
+        <FIELD NAME="studentid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Reservation belongs to student" PREVIOUS="courseid" NEXT="timetableid"/>
+        <FIELD NAME="timetableid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Reserved timeslot belongs to timetable" PREVIOUS="studentid" NEXT="week"/>
+        <FIELD NAME="week" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Reserved timeslot week" PREVIOUS="timetableid" NEXT="confirmed"/>
+        <FIELD NAME="confirmed" TYPE="int" LENGTH="2" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Reserve confirmation, 0-cancelled or not confirmed, 1-confirmed" PREVIOUS="week" NEXT="timecreated"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Reserve creation timestamp" PREVIOUS="confirmed"/>
+      </FIELDS>
+      <KEYS>
+         <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for tutorship_reservations table" NEXT="courseid_fk"/>
+        <KEY NAME="courseid_fk" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id" COMMENT="Foreign key to refer course table" PREVIOUS="primary" NEXT="studentid_fk"/>
+        <KEY NAME="studentid_fk" TYPE="foreign" FIELDS="studentid" REFTABLE="user" REFFIELDS="id" COMMENT="Foreign key to refer user table" PREVIOUS="courseid_fk" NEXT="timetableid_fk"/>
+         <KEY NAME="timetableid_fk" TYPE="foreign" FIELDS="timetableid" REFTABLE="tutorship_timetable" REFFIELDS="id" COMMENT="Foreign key to refer timetable table" PREVIOUS="studentid_fk"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="tutorship_timeslots" COMMENT="Keeps all possible timeslots within a week" PREVIOUS="tutorship_reserves" NEXT="tutorship_periods">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="day"/>
+        <FIELD NAME="day" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Timeslot day of the week" PREVIOUS="id" NEXT="starttime"/>
+         <FIELD NAME="starttime" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Timeslot start time" PREVIOUS="day"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for tutorship_timeslots table"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="tutorship_periods" COMMENT="Keeps all possible course periods" PREVIOUS="tutorship_timeslots" NEXT="tutorship_configs">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="description"/>
+        <FIELD NAME="description" TYPE="text" LENGTH="medium" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" ENUM="false" COMMENT="Period description" PREVIOUS="id" NEXT="startdate"/>
+        <FIELD NAME="startdate" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Period start date" PREVIOUS="description" NEXT="enddate"/>
+        <FIELD NAME="enddate" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Period end date" PREVIOUS="startdate"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for tutorship_periods table"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="tutorship_configs" COMMENT="Keeps all timetables configuration" PREVIOUS="tutorship_periods">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" ENUM="false" NEXT="teacherid"/>
+        <FIELD NAME="teacherid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENTS="Configuration belongs to timetable" PREVIOUS="id" NEXT="autoconfirm"/>
+        <FIELD NAME="autoconfirm" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENTS="Automatic confirmations, 0-disabled, 1-enabled" PREVIOUS ="teacherid" NEXT="notifications"/>
+        <FIELD NAME="notifications" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="1" ENUM="false" COMMENTS="Email notifications, 0-disabled, 1-enabled" PREVIOUS="autoconfirm" NEXT="maxreserves"/>
+        <FIELD NAME="maxreserves" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="3" ENUM="false" COMMENT="Maximum number of reserves per student" PREVIOUS="notifications" NEXT="noreserves"/>
+        <FIELD NAME="noreserves" TYPE="int" LENGTH="2" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Enable reservatios: 0, Disable reservations: 1" PREVIOUS="maxreserves" NEXT="timemodified"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" DEFAULT="0" ENUM="false" COMMENT="Last modification timestamp" PREVIOUS="noreserves"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for tutorship_configs table" NEXT="teacherid_fk"/>
+        <KEY NAME="teacherid_fk" TYPE="foreign" FIELDS="teacherid" REFTABLE="user" REFFIELDS="id" COMMENTS="Foreign key to refer user table" PREVIOUS="primary"/>
+      </KEYS> 
+    </TABLE>
+  </TABLES>
+</XMLDB>
