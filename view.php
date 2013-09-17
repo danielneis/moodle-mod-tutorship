@@ -491,7 +491,7 @@ if ($cancell) {
 if ($noreserves) {
     $urlparams['noreserves'] = $noreserves;
 }
-$PAGE->set_url(new moodle_url('mod/tutorship/view.php', $urlparams));
+$PAGE->set_url(new moodle_url('/mod/tutorship/view.php', $urlparams));
 $PAGE->set_context($context);
 $PAGE->set_cacheable(false);
 $PAGE->set_title($tutorship->name);
