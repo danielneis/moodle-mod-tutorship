@@ -50,6 +50,18 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
 
+    'mod/tutorship:addinstance' => array(
+        'riskbitmask' => RISK_XSS,
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ),
+        'clonepermissionsfrom' => 'moodle/course:manageactivities'
+    ),
+
 /// Everybody can see tutorship module:
     // Ability to see that the tutorship exists, and all the information
     // about it, for example the timetable.
